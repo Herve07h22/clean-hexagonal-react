@@ -2,7 +2,7 @@ import {Todo, User} from './todo.model'
 
 // Client-side ports (how the business logic reacts to the user actions)
 export interface ITodosInteractor {
-    newTodo: (params : {label: string; dueDate?: Date; assignedTo?: User}) => Promise<Todo>;
+    newTodo: (params? : {label: string; dueDate?: Date; assignedTo?: User}) => Promise<Todo>;
     getTodos: () => Promise<Todo[]>;
     createOrEditTodo: (todo: Todo) => Promise<void>;
     checkTodo: (todo: Todo) => Promise<void>;

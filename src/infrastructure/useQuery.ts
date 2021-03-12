@@ -5,7 +5,7 @@ function noCallbackDefined () {
 }
 
 export function useQuery<Input, Output>(
-  asyncFn: (arg: Input) => Promise<Output>,
+  asyncFn: (arg?: Input) => Promise<Output>,
   params?: { parameters?: Input, initialValues?: Output, isCommand?: boolean, callback?: any }
 ) {
   const [results, setResults] = useState(params?.initialValues);
@@ -14,7 +14,7 @@ export function useQuery<Input, Output>(
   const callback = useRef(params?.callback || noCallbackDefined)
 
   const refresh = useCallback(
-    (newParameters: Input) => {
+    (newParameters?: Input) => {
       setLoading(true);
       setError(null);
       asyncFn(newParameters)
@@ -26,7 +26,11 @@ export function useQuery<Input, Output>(
   );
 
   // Fire the query when the component mounts
-  useEffect(() => !(params?.isCommand) && refresh(params.parameters), [refresh, params.parameters, params.isCommand]);
+  useEffect(() => {
+    if(!params?.isCommand) {
+      refresh(params?.parameters)
+    }
+  }, [refresh, params?.parameters, params?.isCommand]);
 
   return { loading, results, error, refresh };
 }

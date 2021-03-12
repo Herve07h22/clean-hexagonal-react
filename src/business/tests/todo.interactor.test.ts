@@ -1,43 +1,10 @@
-import {IAuthenticationService, INotificationService, IDatabaseService} from './todo.ports'
-import {User, Todo, TodoState} from './todo.model'
-import {TodosInteractor} from './todo.interactor'
 
-// Test services
-class testAuthenticationService implements IAuthenticationService {
-    private _testUser: User;
-    private _isLogged: boolean;
-    constructor (wantsToBeNotified:boolean) { 
-        this._testUser = {id:1, name:"user-test", wantsToBeNotified} 
-        this._isLogged = false
-    }
-    getLoggedUser () {
-        return this._isLogged ? Promise.resolve(this._testUser) : Promise.reject("No logged user")
-    }
-    login (username:string, password:string) { 
-        if (username === "user-test" && password === "test") {
-            this._isLogged = true
-            return this.getLoggedUser()
-        }
-    }
-    logout () { 
-        this._isLogged = false;
-        return Promise.resolve() 
-    }
-}
+import {User, Todo, TodoState} from '../todo.model'
+import {TodosInteractor} from '../todo.interactor'
 
-class testDatabaseService implements IDatabaseService {
-    private _todos: Todo[]
-    constructor () { this._todos = [] }
-    loadTodos () { return Promise.resolve(this._todos) };
-    saveTodos (createdOrUpdatedtodos: Todo[]) {
-        this._todos = [...createdOrUpdatedtodos]
-        return Promise.resolve()
-    }
-}
-
-class testNotificationService implements INotificationService {
-    notify (user: User, todo: Todo, message: string) { return Promise.resolve()} ;
-}
+import {testAuthenticationService} from './testAuthenticationService'
+import {testDatabaseService } from './testDatabaseService'
+import {testNotificationService} from './testNotificationService'
 
 it("Interactor can return an empty list of todos", async () => {
     const interactor = new TodosInteractor(new testDatabaseService(), new testNotificationService(), new testAuthenticationService(true))
@@ -49,6 +16,13 @@ it("Interactor cannot create a new todo if the user is not logged in", async () 
     const authenticationService = new testAuthenticationService(true)
     const interactor = new TodosInteractor(new testDatabaseService(), new testNotificationService(), authenticationService)
     await expect(interactor.newTodo({label:"New todo"})).rejects.toMatch("No logged user");
+} )
+
+it("Interactor cannot create a new empty todo", async () => {
+    const authenticationService = new testAuthenticationService(true)
+    await authenticationService.login("user-test", "test")
+    const interactor = new TodosInteractor(new testDatabaseService(), new testNotificationService(), authenticationService)
+    await expect(interactor.newTodo()).rejects.toMatch("Cannot create an empty todo");
 } )
 
 it("Interactor can create a new todo if the user is logged in", async () => {
@@ -74,6 +48,6 @@ it("Interactor can create a new assigned todo and notify the user", async () => 
     notificationService.notify = jest.fn();
     const interactor = new TodosInteractor(new testDatabaseService(), notificationService, authenticationService)
     const newTodo: Todo = await interactor.newTodo({label:"New todo", assignedTo:assignedUser})
-    expect(newTodo.assignedTo.name).toEqual("notify-user")
+    expect(newTodo.assignedTo?.name).toEqual("notify-user")
     expect(notificationService.notify).toBeCalled()
 } )

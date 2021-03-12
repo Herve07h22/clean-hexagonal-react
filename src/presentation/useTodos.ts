@@ -1,12 +1,18 @@
-import {ITodosInteractor} from '../business/todo.ports'
-import {useQuery} from '../infrastructure/useQuery'
+import { TodosInteractor } from '../business/todo.interactor'
+import { useQuery } from '../infrastructure/useQuery'
+import { useServices } from '../infrastructure/services'
 
-export function useTodos (interactor: ITodosInteractor) {
+export function useTodos() {
+   const { authenticationService,
+      databaseService,
+      notificationService } = useServices()
 
-   const { loading, results:todos, error, refresh:updateTodos } = useQuery(interactor.getTodos)
-   const { refresh:createOrEditTodo } = useQuery(interactor.createOrEditTodo, {isCommand:true}) 
+   const interactor = new TodosInteractor(databaseService, notificationService, authenticationService)
 
-   return {loading, todos, updateTodos, createOrEditTodo, error}
+   const { loading, results: todos, error, refresh: updateTodos } = useQuery(interactor.getTodos, {initialValues:[]})
+   const { refresh: newTodo } = useQuery(interactor.newTodo, { isCommand: true })
+
+   return { loading, todos, updateTodos, newTodo, error }
 
 }
 

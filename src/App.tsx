@@ -1,24 +1,13 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
-
-const queryClient = new QueryClient()
+import { withServices } from "./infrastructure/services";
+import {Todos} from './presentation/Todos'
 
 function App() {
   return (
     // Provide the client to your App
-    <QueryClientProvider client={queryClient}>
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  )
+    <div>
+      <Todos />
+    </div>
+  );
 }
 
-export default App;
+export default withServices(App);

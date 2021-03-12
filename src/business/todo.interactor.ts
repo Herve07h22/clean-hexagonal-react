@@ -18,7 +18,10 @@ export class TodosInteractor implements ITodosInteractor {
         this._todos = await this._databaseService.loadTodos()
         return this._todos 
     }
-    async newTodo (params : {label: string; dueDate?: Date; assignedTo?: User}) {
+    async newTodo (params? : {label: string; dueDate?: Date; assignedTo?: User}) {
+        if (!params) {
+            return Promise.reject("Cannot create an empty todo")
+        }
         const currentUser = await this._authenticationService.getLoggedUser()
         const newTodo: Todo = {label:params.label, createdAt: new Date(), owner: currentUser, state:TodoState.pending, 
             assignedTo:params.assignedTo, dueDate:params.dueDate}
