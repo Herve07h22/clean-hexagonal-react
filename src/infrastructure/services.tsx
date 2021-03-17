@@ -11,6 +11,8 @@ const services = {
     notificationService : new testNotificationService(),
 }
 
+services.authenticationService.login("user-test", "test")
+
 var servicesContext = React.createContext(services)
 
 const withServices = (WrappedComponent:any) => (props:any) => {
