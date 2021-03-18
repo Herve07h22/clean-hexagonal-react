@@ -24,15 +24,14 @@ export class TodosInteractor implements ITodosInteractor {
     this._todos = [];
   }
   async getTodos() {
-    console.log("getTodos ()", this);
     this._todos = await this._databaseService.loadTodos();
     return this._todos;
   }
   async newTodo(params?: INewTodoParameters) {
-      console.log("--- NewTodo----", params)
     if (!params) {
       return Promise.reject("Cannot create an empty todo");
     }
+    console.log("params:", params)
     const currentUser = await this._authenticationService.getLoggedUser();
     const newTodo: Todo = {
       label: params.label,
@@ -40,7 +39,7 @@ export class TodosInteractor implements ITodosInteractor {
       owner: currentUser,
       state: TodoState.pending,
       assignedTo: params.assignedTo,
-      dueDate: params.dueDate,
+      dueDate: params.dueDate && new Date(params.dueDate),
     };
     this._todos = [...this._todos, newTodo];
     await this._databaseService.saveTodos(this._todos);
@@ -48,9 +47,10 @@ export class TodosInteractor implements ITodosInteractor {
       await this._notificationService.notify(
         currentUser,
         newTodo,
-        "A new tot has been assigned to you"
+        "A new todo has been assigned to you"
       );
     }
+    console.log("this._todos:", this._todos)
     return newTodo;
   }
   async createOrEditTodo(todo: Todo) {
