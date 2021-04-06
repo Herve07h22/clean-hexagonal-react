@@ -31,7 +31,6 @@ export class TodosInteractor implements ITodosInteractor {
     if (!params) {
       return Promise.reject("Cannot create an empty todo");
     }
-    console.log("params:", params)
     const currentUser = await this._authenticationService.getLoggedUser();
     const newTodo: Todo = {
       label: params.label,
@@ -50,7 +49,6 @@ export class TodosInteractor implements ITodosInteractor {
         "A new todo has been assigned to you"
       );
     }
-    console.log("this._todos:", this._todos)
     return newTodo;
   }
   async createOrEditTodo(todo: Todo) {

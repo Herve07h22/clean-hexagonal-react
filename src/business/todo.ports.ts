@@ -27,6 +27,7 @@ export interface INotificationService {
     notify: (user: User, todo: Todo, message: string) => Promise<void>;
 }
 
+// Could be renamed as TodoRepository
 export interface IDatabaseService {
     loadTodos: ()=>Promise<Todo[]>;
     saveTodos: (createdOrUpdatedtodos: Todo[])=>Promise<void>;  // Update the list instead of create/update/delete.    
